@@ -80,7 +80,7 @@ async function ghFileUpload(content: string, filename: string) {
     `github`,
   )
   const dir = getDir()
-  const url = `https://api.github.com/repos/${username}/${repo}/contents/${dir}/`
+  const url = `https://api.github.com/repos/${username}/${repo}/contents/${dir}/?ref=${branch}`
   const dateFilename = getDateFilename(filename)
   const res = await fetch<{ content: {
     download_url: string
