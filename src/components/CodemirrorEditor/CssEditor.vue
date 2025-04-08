@@ -26,7 +26,7 @@ function editTabName() {
   }
   store.renameTab(editInputVal.value)
   isOpenEditDialog.value = false
-  toast.success(`修改成功~`)
+  toast.success(`修改成功`)
 }
 
 const isOpenAddDialog = ref(false)
@@ -49,7 +49,7 @@ function addTab() {
 
   store.cssContentConfig.active = addInputVal.value
   tabHistory.value = [tabHistory.value[1], addInputVal.value]
-  toast.success(`新建成功~`)
+  toast.success(`新建成功`)
 }
 
 const isOpenDelTabConfirmDialog = ref(false)
@@ -82,7 +82,7 @@ function delTab() {
   store.tabChanged(activeName)
   store.cssContentConfig.tabs = tabs.filter(tab => tab.name !== delTargetName.value)
 
-  toast.success(`删除成功~`)
+  toast.success(`删除成功`)
 }
 
 function addHandler() {
@@ -104,7 +104,7 @@ function tabChanged(tabName: string | number) {
 
 <template>
   <transition enter-active-class="bounceInRight">
-    <div v-show="displayStore.isShowCssEditor" class="cssEditor-wrapper h-full flex flex-col border-l-1">
+    <div v-show="displayStore.isShowCssEditor" class="cssEditor-wrapper h-full flex flex-col border-l-2 border-gray/50">
       <Tabs
         v-model="store.cssContentConfig.active"
         @update:model-value="tabChanged"

@@ -2,6 +2,7 @@ import type { Block, ExtendedProperties, Inline, Theme } from '@/types'
 
 import type { PropertiesHyphen } from 'csstype'
 import { prefix } from '@/config'
+import { autoSpace } from '@/utils/autoSpace'
 import juice from 'juice'
 import * as prettierPluginBabel from 'prettier/plugins/babel'
 import * as prettierPluginEstree from 'prettier/plugins/estree'
@@ -75,8 +76,9 @@ export function customCssWithTemplate(jsonString: Partial<Record<Block | Inline,
     `image`,
     `ul`,
     `ol`,
+    `block_katex`,
   ]
-  const inlineKeys: Inline[] = [`strong`, `codespan`, `link`, `wx_link`, `listitem`]
+  const inlineKeys: Inline[] = [`strong`, `codespan`, `link`, `wx_link`, `listitem`, `inline_katex`]
 
   mergeProperties(newTheme.block, jsonString, blockKeys)
   mergeProperties(newTheme.inline, jsonString, inlineKeys)
@@ -98,9 +100,9 @@ export function css2json(css: string): Partial<Record<Block | Inline, Properties
   // 辅助函数：将声明数组转换为对象
   const toObject = (array: any[]) =>
     array.reduce<{ [k: string]: string }>((obj, item) => {
-      const [property, value] = item.split(`:`).map((part: string) => part.trim())
+      const [property, ...value] = item.split(`:`).map((part: string) => part.trim())
       if (property)
-        obj[property] = value
+        obj[property] = value.join(`:`)
       return obj
     }, {})
 
@@ -153,9 +155,10 @@ export async function formatDoc(content: string, type: `markdown` | `css` = `mar
     markdown: [prettierPluginMarkdown, prettierPluginBabel, prettierPluginEstree],
     css: [prettierPluginCss],
   }
+  const addSpaceContent = autoSpace(content)
 
   const parser = type in plugins ? type : `markdown`
-  return await format(content, {
+  return await format(addSpaceContent, {
     parser,
     plugins: plugins[parser],
   })
@@ -387,7 +390,7 @@ export function processClipboardContent(primaryColor: string) {
 
   // 处理样式和颜色变量
   clipboardDiv.innerHTML = clipboardDiv.innerHTML
-    .replace(/top:(.*?)em/g, `transform: translateY($1em)`)
+    .replace(/([^-])top:(.*?)em/g, `$1transform: translateY($2em)`)
     .replace(/hsl\(var\(--foreground\)\)/g, `#3f3f3f`)
     .replace(/var\(--blockquote-background\)/g, `#f7f7f7`)
     .replace(/var\(--md-primary-color\)/g, primaryColor)
@@ -395,6 +398,10 @@ export function processClipboardContent(primaryColor: string) {
     .replace(
       /<span class="nodeLabel"([^>]*)><p[^>]*>(.*?)<\/p><\/span>/g,
       `<span class="nodeLabel"$1>$2</span>`,
+    )
+    .replace(
+      /<span class="edgeLabel"([^>]*)><p[^>]*>(.*?)<\/p><\/span>/g,
+      `<span class="edgeLabel"$1>$2</span>`,
     )
 
   // 处理图片大小
