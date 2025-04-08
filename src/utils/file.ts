@@ -110,7 +110,7 @@ async function ghFileUpload(content: string, filename: string) {
   res.content = res.data?.content || res.content
   return useDefault
     ? res.content.download_url.replace(githubResourceUrl, cdnResourceUrl)
-    : res.content.download_url
+    : res.content.download_url.replace(githubResourceUrl, cdnResourceUrl)
 }
 
 // -----------------------------------------------------------------------
